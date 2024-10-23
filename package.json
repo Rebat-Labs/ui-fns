@@ -1,36 +1,35 @@
 {
-  "name": "npm-template",
-  "version": "1.0.0",
-  "description": "This package/library servers as a share point for the mono repo structure javascript projects infrastructure is built upon.",
+  "name": "@rebatlabs/ui-funs",
+  "version": "1.0.1",
+  "description": "Use this repo for shared javascript functions well suitable for frontend projects",
   "main": "build/index.js",
-  "files": ["/build"],
+  "files": [
+    "/build"
+  ],
   "types": "build/index.d.ts",
   "scripts": {
-    "test": "",
     "lint": "eslint --ext .js,.ts .",
     "linty": "npm run lint -- --fix",
-    "build": "tsc",
-    "publish": "npm run build && npm publish"
+    "build": "tsc"
   },
-  "author": "Jackmay Confidence Idala",
+  "author": "Jackmay Confidence",
   "repository": {
     "type": "git",
-    "url": "[your git repository location eg (git+https://github.com/Account-Profile/repo.git)]"
+    "url": "git+https://github.com/Rebat-Labs/ui-fns.git"
   },
   "bugs": {
-    "url": "[your git issues location eg (https://github.com/Account-Profile/repo/issues)]"
+    "url": "https://github.com/Rebat-Labs/ui-fns/issues"
   },
-  "homepage": "[provide repo homepage]",
+  "homepage": "https://rebat.org",
   "keywords": [],
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
-    "class-transformer": "^0.5.1",
     "axios": "^1.4.0",
-    "reflect-metadata": "^0.1.13",
-    "rimraf": "^3.0.2"
+    "string-it-on": "^1.1.1",
+    "uuid": "^9.0.0"
   },
   "devDependencies": {
-    "@types/node": "^20.1.2",
+    "@types/node": "^22.7.8",
     "@typescript-eslint/eslint-plugin": "^5.47.1",
     "@typescript-eslint/parser": "^5.47.1",
     "eslint": "^8.30.0",
