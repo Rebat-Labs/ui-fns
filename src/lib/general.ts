@@ -46,6 +46,20 @@ export function convertUnixToDate(timestamp: number): Date {
   return date;
 }
 
+/**
+ * Generates a UUID v4 string.
+ * Compatible with environments without crypto.randomUUID().
+ * 
+ * @returns {string} A unique UUID string.
+ */
+export function generateDocumentUUID(): string {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (char) => {
+    const random = (Math.random() * 16) | 0; // Generate random 0-15
+    const value = char === 'x' ? random : (random & 0x3) | 0x8; // Set bits for 'y'
+    return value.toString(16); // Convert to hexadecimal
+  });
+}
+
 
 /**
  * Random string generator helper
@@ -68,6 +82,11 @@ export const removeTrailingSlash = function (url: string | undefined) {
   return url.replace(/\/$/, "");
 }
 
+
+export const removeAllIdentifiers = function (url: string | undefined) {
+  if (url === undefined || url === null || !url.includes("_")) return '';
+  return url.split("_")[1];
+}
 
 export function getRandomInt(max: number) {
   return Math.floor(Math.random() * max);
