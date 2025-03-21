@@ -18,6 +18,38 @@ export function isThisAWord(value?: string) {
   return value.length > 1 ? value : undefined;
 }
 
+
+/**
+ * Check if string is equalToIgnoreCase
+  * @param {string} comparingAgainst
+ * @param {string} comparingTo
+ * @return {boolean} bool item
+ */
+export function equalToIgnoreCase(comparingAgainst: string,
+  comparingTo: string): boolean {
+  if (comparingAgainst.toUpperCase() ===
+    comparingTo.toUpperCase()) {
+    return true;
+  } else if (comparingAgainst.toLowerCase() ===
+    comparingTo.toLowerCase()) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
+/**
+ * Check if string is equalToIgnoreCase
+  * @param {string} comparingAgainst
+ * @param {string} comparingTo
+ * @return {boolean} bool item
+ */
+export function compareEqualsTo(comparingAgainst: string,
+  comparingTo: string): boolean {
+  return comparingAgainst.localeCompare(comparingTo,
+    undefined, { sensitivity: "base" }) === 1;
+}
+
 /**
  * converts date to unix timestamp
   * @param {Date} date value
@@ -200,6 +232,67 @@ export const formatDate = (date: Date): string => {
 
 export function obscureString(input: string): string {
   return input.replace(/./g, '•');
+}
+
+
+
+export function dateFormatter(
+  date: Date | string | number,
+  options: { showDate?: boolean; showTime?: boolean } = { showDate: true, showTime: true }
+): string {
+  const parseDate = (input: Date | string | number): Date => {
+    if (input instanceof Date) {
+      return input;
+    } else if (typeof input === "string" || typeof input === "number") {
+      const parsed = new Date(input);
+      if (isNaN(parsed.getTime())) {
+        throw new Error("Invalid date format");
+      }
+      return parsed;
+    }
+    throw new Error("Unsupported date type");
+  };
+
+  const parsedDate = parseDate(date);
+
+  const getDayOfMonthSuffix = (day: number): string => {
+    if (day >= 11 && day <= 13) {
+      return "th";
+    }
+    switch (day % 10) {
+      case 1: return "st";
+      case 2: return "nd";
+      case 3: return "rd";
+      default: return "th";
+    }
+  };
+
+  const months = [
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"
+  ];
+
+  const day = parsedDate.getDate();
+  const daySuffix = getDayOfMonthSuffix(day);
+  const month = months[parsedDate.getMonth()];
+  const year = parsedDate.getFullYear();
+
+  const hours = parsedDate.getHours();
+  const minutes = parsedDate.getMinutes();
+  const period = hours >= 12 ? "pm" : "am";
+  const formattedTime = `${(hours % 12 || 12).toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")} ${period}`;
+
+  const datePart = `${day}${daySuffix} ${month} ${year}`;
+
+  if (options.showDate && options.showTime) {
+    return `${datePart}, at ${formattedTime}`;
+  } else if (options.showDate) {
+    return datePart;
+  } else if (options.showTime) {
+    return formattedTime;
+  } else {
+    return "";
+  }
 }
 
 export function calculatePercentage(amount: number, percentage: number) {
