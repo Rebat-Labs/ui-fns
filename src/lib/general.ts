@@ -388,3 +388,70 @@ export function strEnum<T extends string>(o: Array<T>): { [K in T]: K } {
     return res;
   }, Object.create(null));
 }
+
+
+export function getInitialsFromEmail(email: string): string {
+  if (!email || typeof email !== 'string') {
+    return '';
+  }
+
+  // Remove everything after @ to ignore the domain part
+  const localPart = email.split('@')[0];
+
+  // Split by common separators (., _, -)
+  const parts = localPart.split(/[._-]/);
+
+  // Filter out empty parts and take first 2 segments
+  const validParts = parts.filter(part => part.length > 0).slice(0, 2);
+
+  if (validParts.length === 0) {
+    // If no valid parts, try to use first two letters of local part
+    return localPart.slice(0, 2).toUpperCase();
+  }
+
+  if (validParts.length === 1) {
+    // If only one part, use first two letters
+    return validParts[0].slice(0, 2).toUpperCase();
+  }
+
+  // If multiple parts, use first letter of first two parts
+  return validParts
+    .map(part => part.charAt(0).toUpperCase())
+    .join('');
+}
+
+export function normalizeDate(input: number | Date | string | null | undefined): Date {
+  if (!input) return new Date(0); // fail-safe
+  if (typeof input === 'number') return new Date(input * 1000);
+  if (typeof input === 'string') return new Date(input);
+  return input;
+}
+
+export function normalizeTimestamp(timestamp: number | Date | string | null | undefined): number | null {
+  if (timestamp === null || timestamp === undefined) {
+    return null;
+  }
+
+  if (typeof timestamp === 'number') {
+    // Already a Unix timestamp
+    return timestamp;
+  }
+
+  if (timestamp instanceof Date) {
+    return Math.floor(timestamp.getTime() / 1000);
+  }
+
+  if (typeof timestamp === 'string') {
+    const date = new Date(timestamp);
+    if (isNaN(date.getTime())) {
+      return null; // Invalid date string
+    }
+    return Math.floor(date.getTime() / 1000);
+  }
+
+  return null;
+}
+
+export function formatNairaCurrency(amount: number): string {
+  return `₦${amount.toLocaleString()}`;
+}
