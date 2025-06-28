@@ -1,6 +1,6 @@
 {
   "name": "@rebatlabs/ui-funs",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "Use this repo for shared javascript functions well suitable for frontend projects",
   "main": "build/index.js",
   "files": [

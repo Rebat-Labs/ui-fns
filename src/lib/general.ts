@@ -238,7 +238,7 @@ export function obscureString(input: string): string {
 
 export function dateFormatter(
   date: Date | string | number,
-  options: { showDate?: boolean; showTime?: boolean } = { showDate: true, showTime: true }
+  options: { showDate?: boolean; showTime?: boolean, basic?: boolean } = { showDate: true, showTime: true, basic: false }
 ): string {
   const parseDate = (input: Date | string | number): Date => {
     if (input instanceof Date) {
@@ -283,8 +283,11 @@ export function dateFormatter(
   const formattedTime = `${(hours % 12 || 12).toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")} ${period}`;
 
   const datePart = `${day}${daySuffix} ${month} ${year}`;
+  const basicPart = `${month} ${year}`;
 
-  if (options.showDate && options.showTime) {
+  if (options.basic) {
+    return basicPart;
+  } else if (options.showDate && options.showTime) {
     return `${datePart}, at ${formattedTime}`;
   } else if (options.showDate) {
     return datePart;
