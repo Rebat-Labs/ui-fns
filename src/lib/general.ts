@@ -458,3 +458,142 @@ export function normalizeTimestamp(timestamp: number | Date | string | null | un
 export function formatNairaCurrency(amount: number): string {
   return `₦${amount.toLocaleString()}`;
 }
+
+
+export function addQueryParams(
+  originalUrl: string,
+  newParams: Record<string, string | number | boolean>
+): string {
+  try {
+    // Create URL object from the original URL
+    const url = new URL(originalUrl);
+
+    // Get the existing search params
+    const searchParams = url.searchParams;
+
+    // Add/update the new parameters
+    Object.entries(newParams).forEach(([key, value]) => {
+      searchParams.set(key, String(value));
+    });
+
+    // Return the complete URL with updated query parameters
+    return url.toString();
+  } catch (error) {
+    throw new Error(`Invalid URL provided: ${originalUrl}`);
+  }
+}
+
+export function appendQueryParams(
+  originalUrl: string,
+  newParams: Record<string, string | string[] | number | boolean>
+): string {
+  try {
+    const url = new URL(originalUrl);
+    const searchParams = url.searchParams;
+
+    Object.entries(newParams).forEach(([key, value]) => {
+      if (Array.isArray(value)) {
+        // For arrays, append multiple values for the same key
+        value.forEach(v => searchParams.append(key, String(v)));
+      } else {
+        // For single values, append (doesn't overwrite existing)
+        searchParams.append(key, String(value));
+      }
+    });
+
+    return url.toString();
+  } catch (error) {
+    throw new Error(`Invalid URL provided: ${originalUrl}`);
+  }
+}
+
+export function fixUrl(url: string) {
+  if (url.startsWith("https://") || url.startsWith("http://")) return;
+  return `https://${url}`;
+}
+
+/**
+ * Fast function to find a multiselect object by either label or value (case-insensitive) in nested structure
+ * @param array - Array of OptionSchema objects
+ * @param searchTerm - The term to search for (checks both label and value)
+ * @returns The matching option object or undefined if not found
+ */
+export function findMultiselectByLabelOrValue(
+  array: {
+    label: string;
+    options: {
+      label: string;
+      group: string;
+      value: string;
+    }[];
+  }[],
+  searchTerm: string
+): { label: string; group: string; value: string } | undefined {
+  const lowerSearchTerm = searchTerm.toLowerCase();
+
+  for (let i = 0; i < array.length; i++) {
+    const optionGroup = array[i];
+    for (let j = 0; j < optionGroup.options.length; j++) {
+      const option = optionGroup.options[j];
+      if (option.label.toLowerCase() === lowerSearchTerm || option.value.toLowerCase() === lowerSearchTerm) {
+        return option;
+      }
+    }
+  }
+
+  return undefined;
+}
+
+
+export function createSlug(name: string): string {
+  return name
+    .toLowerCase()                    // Convert to lowercase
+    .trim()                          // Remove leading/trailing whitespace
+    .replace(/\s+/g, '-')           // Replace spaces with hyphens
+    .replace(/[^a-z0-9-]/g, '')     // Remove non-alphanumeric characters except hyphens
+    .replace(/-+/g, '-')            // Replace multiple consecutive hyphens with single hyphen
+    .replace(/^-|-$/g, '');         // Remove leading/trailing hyphens
+}
+
+
+export function obscureEmail(email: string): string {
+  // Basic email validation
+  if (!email.includes('@') || email.split('@').length !== 2) {
+    throw new Error('Invalid email format');
+  }
+
+  const [username, domain] = email.split('@');
+
+  // Helper function to obscure a string part
+  function obscurePart(part: string): string {
+    if (part.length <= 2) {
+      // If part is too short, show first character + asterisks
+      return part[0] + '*'.repeat(part.length - 1);
+    }
+
+    // Show first and last character, fill middle with asterisks
+    const firstChar = part[0];
+    const lastChar = part[part.length - 1];
+    const middleLength = part.length - 2;
+
+    return firstChar + '*'.repeat(middleLength) + lastChar;
+  }
+
+  // Handle domain with potential subdomain and TLD
+  const domainParts = domain.split('.');
+  const domainName = domainParts[0]; // Main domain part
+  const tld = domainParts.slice(1).join('.'); // Everything after first dot
+
+  const obscuredUsername = obscurePart(username);
+  const obscuredDomain = obscurePart(domainName);
+
+  return `${obscuredUsername}@${obscuredDomain}.${tld}`;
+}
+
+export function extractFirstNameFromEmail(email: string): string {
+  if (!email) {
+    throw new Error('Email is required');
+  }
+  const firstName = email.split('@')[0];
+  return firstName.charAt(0).toUpperCase() + firstName.slice(1);
+}
