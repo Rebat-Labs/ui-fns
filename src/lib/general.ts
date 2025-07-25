@@ -555,6 +555,19 @@ export function createSlug(name: string): string {
     .replace(/^-|-$/g, '');         // Remove leading/trailing hyphens
 }
 
+export function unslug(slug: string, capitalize: boolean = true): string {
+  let result = slug
+    .replace(/-/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  if (capitalize) {
+    result = result.replace(/(?:^|\s)\S/g, (match) => match.toUpperCase());
+  }
+
+  return result;
+}
+
 
 export function obscureEmail(email: string): string {
   // Basic email validation
