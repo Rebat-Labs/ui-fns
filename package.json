@@ -1,6 +1,6 @@
 {
   "name": "@rebatlabs/ui-funs",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "Use this repo for shared javascript functions well suitable for frontend projects",
   "main": "build/index.js",
   "files": [
@@ -24,7 +24,7 @@
   "keywords": [],
   "license": "MIT",
   "dependencies": {
-    "axios": "^1.4.0",
+    "axios": "^1.6.0",
     "string-it-on": "^1.1.1",
     "uuid": "^9.0.0"
   },

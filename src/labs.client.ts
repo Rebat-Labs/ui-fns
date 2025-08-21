@@ -1,6 +1,18 @@
 import axios from "axios";
 import { errortype, status, HTTP_METHOD, IResponseTemplate, Request, DEFAULT_ERROR } from "./types";
 
+// Check if we're in an Edge Runtime environment
+const isEdgeRuntime = typeof globalThis !== 'undefined' && 
+  (globalThis as any).EdgeRuntime !== undefined;
+
+// Create an Edge Runtime compatible axios instance
+const axiosInstance = axios.create({
+  // Use browser-compatible defaults
+  timeout: 30000,
+  // Ensure we're using browser-compatible features
+  withCredentials: false,
+});
+
 /**
  * Use this on sever side only
  * Sends an HTTP request using Axios and returns the response data.
@@ -11,6 +23,11 @@ import { errortype, status, HTTP_METHOD, IResponseTemplate, Request, DEFAULT_ERR
  * @returns A promise that resolves to the response data or an error response template.
  */
 export async function requester(url: string, method: HTTP_METHOD, param: Request): Promise<IResponseTemplate> {
+  // Use fetch for Edge Runtime, axios for Node.js
+  if (isEdgeRuntime) {
+    return await edgeRuntimeRequester(url, method, param);
+  }
+  
   try {
     // Prepare Axios request options, including headers and body if applicable
     const axiosOptions = {
@@ -21,7 +38,7 @@ export async function requester(url: string, method: HTTP_METHOD, param: Request
     };
 
     // Send the request using Axios and await the response
-    const response = await axios.request<IResponseTemplate>({
+    const response = await axiosInstance.request<IResponseTemplate>({
       url,
       method,
       ...axiosOptions,
@@ -43,5 +60,39 @@ export async function requester(url: string, method: HTTP_METHOD, param: Request
       // Return a default error if no response is available
       return DEFAULT_ERROR;
     }
+  }
+}
+
+/**
+ * Edge Runtime compatible requester using native fetch API
+ */
+async function edgeRuntimeRequester(url: string, method: HTTP_METHOD, param: Request): Promise<IResponseTemplate> {
+  try {
+    const headers = param.headers
+      ? JSON.parse(JSON.stringify(param.headers))
+      : { 'Accept': 'application/json' };
+
+    const fetchOptions: RequestInit = {
+      method,
+      headers,
+      ...((method === 'POST' || method === 'PUT' || method === 'PATCH') && { body: JSON.stringify(param.body) }),
+    };
+
+    const response = await fetch(url, fetchOptions);
+    
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      return {
+        status: response.status.toString() as status,
+        reason: errorData.reason || `HTTP ${response.status}`,
+        type: 'error' as errortype,
+      };
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Edge Runtime requester error:', error);
+    return DEFAULT_ERROR;
   }
 }
