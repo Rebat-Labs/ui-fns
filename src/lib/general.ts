@@ -610,3 +610,43 @@ export function extractFirstNameFromEmail(email: string): string {
   const firstName = email.split('@')[0];
   return firstName.charAt(0).toUpperCase() + firstName.slice(1);
 }
+
+/**
+ * checks if we past that date
+  * @param {Date} date
+ * @return {boolean} date item
+ */
+export function isDateBefore(date: Date): boolean {
+  return new Date(date.toDateString()) <
+    new Date(new Date().toDateString());
+}
+
+type ParamValue = string | string[] | number | boolean;
+type ParamsRecord = Record<string, ParamValue>;
+
+export function buildSearchParams(host: string, params: ParamsRecord): string {
+  // Filter out undefined/null values
+  const entries = Object.entries(params).filter(
+    ([_, value]) => value !== undefined && value !== null
+  );
+
+  // If no valid params, return just the host
+  if (entries.length === 0) {
+    return host;
+  }
+
+  // Build URLSearchParams
+  const searchParams = new URLSearchParams();
+
+  entries.forEach(([key, value]) => {
+    if (Array.isArray(value)) {
+      // Handle arrays by adding multiple entries with the same key
+      value.forEach(v => searchParams.append(key, String(v)));
+    } else {
+      // Convert boolean/number to string
+      searchParams.append(key, String(value));
+    }
+  });
+
+  return `${host}?${searchParams.toString()}`;
+}
