@@ -17,7 +17,21 @@ npm install @rebatlabs/ui-funs
 Import the functions you need from the library:
 
 ```javascript
-import { obscureNIN, snakeCase, camelCase, capitalizeWords, delay, createInitials, convertDateToUnix, unixTimeStampNow, formatCurrency } from '@rebatlabs/ui-funs';
+import { 
+  obscureNIN, 
+  snakeCase, 
+  camelCase, 
+  capitalizeWords, 
+  delay, 
+  createInitials, 
+  convertDateToUnix, 
+  unixTimeStampNow, 
+  formatCurrency,
+  findCountryJson,
+  findStatesByCountryCode,
+  countriesJson,
+  statesJson
+} from '@rebatlabs/ui-funs';
 ```
 
 ## Functions
@@ -133,6 +147,222 @@ import { obscureNIN, snakeCase, camelCase, capitalizeWords, delay, createInitial
 
 - **roundTo(n: number, place: number): number**
   - Rounds a number to a specified number of decimal places.
+
+## Geographic Data
+
+The library provides comprehensive geographic data including countries and states/provinces information.
+
+### Countries Data
+
+The library includes detailed country information with the following structure:
+
+```typescript
+type TCountryJson = {
+  id: number;
+  name: string;
+  iso3: string;
+  iso2: string;
+  numeric_code: string;
+  phone_code: string;
+  capital: string;
+  currency: string;
+  currency_name: string;
+  currency_symbol: string;
+  tld: string;
+  native: string;
+  region: string;
+  region_id: string;
+  subregion: string;
+  subregion_id: string;
+  nationality: string;
+  timezones: Array<{
+    zoneName: string;
+    gmtOffset: number;
+    gmtOffsetName: string;
+    abbreviation: string;
+    tzName: string;
+  }>;
+  translations: Record<string, string>;
+  emoji: string;
+  emojiU: string;
+}
+```
+
+#### Countries Functions
+
+- **countriesJson: TCountryJson[]**
+  - Complete array of all countries with detailed information.
+
+- **findCountryJson(code: string): TCountryJson | undefined**
+  - Finds a country by its ISO2 code (e.g., 'US', 'GB', 'CA').
+
+- **findCountryJsonByIso3(code: string): TCountryJson | undefined**
+  - Finds a country by its ISO3 code (e.g., 'USA', 'GBR', 'CAN').
+
+- **findCountryJsonByName(name: string): TCountryJson | undefined**
+  - Finds a country by its name (case-insensitive).
+
+- **getCountriesByRegion(region: string): TCountryJson[]**
+  - Returns all countries in a specific region (e.g., 'Asia', 'Europe', 'Africa').
+
+- **getCountriesBySubregion(subregion: string): TCountryJson[]**
+  - Returns all countries in a specific subregion (e.g., 'Southern Asia', 'Western Europe').
+
+#### Countries Usage Examples
+
+```typescript
+import { 
+  countriesJson, 
+  findCountryJson, 
+  findCountryJsonByIso3, 
+  getCountriesByRegion 
+} from '@rebatlabs/ui-funs';
+
+// Get all countries
+console.log(`Total countries: ${countriesJson.length}`);
+
+// Find specific country
+const usa = findCountryJson('US');
+console.log(usa?.name); // "United States of America"
+console.log(usa?.capital); // "Washington, D.C."
+console.log(usa?.currency); // "USD"
+
+// Find by ISO3 code
+const canada = findCountryJsonByIso3('CAN');
+console.log(canada?.phone_code); // "+1"
+
+// Get countries by region
+const asianCountries = getCountriesByRegion('Asia');
+console.log(`Asian countries: ${asianCountries.length}`);
+
+// Access detailed information
+const japan = findCountryJson('JP');
+if (japan) {
+  console.log(japan.emoji); // "🇯🇵"
+  console.log(japan.timezones[0].zoneName); // "Asia/Tokyo"
+  console.log(japan.translations.es); // "Japón"
+}
+```
+
+### States/Provinces Data
+
+The library includes comprehensive states and provinces data with the following structure:
+
+```typescript
+type TStateJson = {
+  id: number;
+  name: string;
+  country_id: number;
+  country_code: string;
+  country_name: string;
+  state_code: string;
+  type: string | null;
+  latitude: string;
+  longitude: string;
+}
+```
+
+#### States Functions
+
+- **statesJson: TStateJson[]**
+  - Complete array of all states/provinces with detailed information.
+
+- **findStatesByCountryCode(countryCode: string): TStateJson[]**
+  - Returns all states/provinces for a specific country by ISO2 country code.
+
+- **findStatesByCountryName(countryName: string): TStateJson[]**
+  - Returns all states/provinces for a specific country by country name.
+
+- **findStateByName(stateName: string, countryCode?: string): TStateJson | undefined**
+  - Finds a state/province by name, optionally filtered by country code.
+
+- **findStateByCode(stateCode: string, countryCode?: string): TStateJson | undefined**
+  - Finds a state/province by its state code, optionally filtered by country code.
+
+#### States Usage Examples
+
+```typescript
+import { 
+  statesJson, 
+  findStatesByCountryCode, 
+  findStateByName, 
+  findStateByCode 
+} from '@rebatlabs/ui-funs';
+
+// Get all states
+console.log(`Total states/provinces: ${statesJson.length}`);
+
+// Get states for a specific country
+const usStates = findStatesByCountryCode('US');
+console.log(`US states: ${usStates.length}`);
+
+// Find specific state
+const california = findStateByName('California', 'US');
+console.log(california?.state_code); // "CA"
+console.log(california?.latitude); // "36.778261"
+
+// Find state by code
+const texas = findStateByCode('TX', 'US');
+console.log(texas?.name); // "Texas"
+
+// Get states for any country
+const canadianProvinces = findStatesByCountryCode('CA');
+console.log(`Canadian provinces: ${canadianProvinces.length}`);
+
+// Find state without country filter (searches globally)
+const london = findStateByName('London');
+console.log(london?.country_name); // "United Kingdom"
+```
+
+### Geographic Data Integration Examples
+
+```typescript
+import { 
+  findCountryJson, 
+  findStatesByCountryCode, 
+  getCountriesByRegion 
+} from '@rebatlabs/ui-funs';
+
+// Build a country selector with states
+function buildCountryStateSelector() {
+  const countries = getCountriesByRegion('North America');
+  
+  return countries.map(country => {
+    const states = findStatesByCountryCode(country.iso2);
+    return {
+      country: country.name,
+      countryCode: country.iso2,
+      states: states.map(state => ({
+        name: state.name,
+        code: state.state_code
+      }))
+    };
+  });
+}
+
+// Validate location data
+function validateLocation(countryCode: string, stateCode?: string) {
+  const country = findCountryJson(countryCode);
+  if (!country) {
+    throw new Error(`Invalid country code: ${countryCode}`);
+  }
+  
+  if (stateCode) {
+    const state = findStateByCode(stateCode, countryCode);
+    if (!state) {
+      throw new Error(`Invalid state code: ${stateCode} for country: ${countryCode}`);
+    }
+  }
+  
+  return { country, state: stateCode ? findStateByCode(stateCode, countryCode) : null };
+}
+
+// Get timezone information for a country
+function getCountryTimezones(countryCode: string) {
+  const country = findCountryJson(countryCode);
+  return country?.timezones || [];
+}
+```
 
 ## Error Handling with PlatformError
 
@@ -403,6 +633,45 @@ app.get('/users/:id', (req, res, next) => {
 5. **Use labels** for consistent error identification across your application
 6. **Log errors** with stack traces for debugging
 7. **Handle unknown errors** using the static `handleError` method
+
+## Quick Reference
+
+### Geographic Data Quick Start
+
+```typescript
+import { 
+  countriesJson, 
+  statesJson, 
+  findCountryJson, 
+  findStatesByCountryCode 
+} from '@rebatlabs/ui-funs';
+
+// Get all countries (195+ countries)
+const allCountries = countriesJson;
+
+// Get all states/provinces (4000+ states)
+const allStates = statesJson;
+
+// Find country by code
+const usa = findCountryJson('US');
+const canada = findCountryJson('CA');
+
+// Get states for a country
+const usStates = findStatesByCountryCode('US');
+const canadianProvinces = findStatesByCountryCode('CA');
+
+// Access country details
+console.log(usa?.name); // "United States of America"
+console.log(usa?.capital); // "Washington, D.C."
+console.log(usa?.currency); // "USD"
+console.log(usa?.emoji); // "🇺🇸"
+```
+
+### Data Statistics
+
+- **Countries**: 195+ countries with complete details
+- **States/Provinces**: 4000+ states and provinces worldwide
+- **Data includes**: ISO codes, phone codes, currencies, capitals, timezones, coordinates, and more
 
 ## Contributing
 

@@ -8,6 +8,8 @@
     "outDir": "./build",                                   /* Specify an output folder for all emitted files. */
     "esModuleInterop": true,                             /* Emit additional JavaScript to ease support for importing CommonJS modules. This enables 'allowSyntheticDefaultImports' for type compatibility. */
     "forceConsistentCasingInFileNames": true,            /* Ensure that casing is correct in imports. */
+    "resolveJsonModule": true,                           /* Enable importing .json files. */
+    "allowSyntheticDefaultImports": true,                /* Allow default imports from modules with no default export. */
     /* Type Checking */
     "strict": true,                                      /* Enable all strict type-checking options. */
     "noImplicitAny": true,                            /* Enable error reporting for expressions and declarations with an implied 'any' type. */
