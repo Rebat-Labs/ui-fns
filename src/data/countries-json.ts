@@ -11,6 +11,10 @@ export function findCountryJsonByIso3(code: string): TCountryJson | undefined {
   return countriesJson.find(item => item.iso3 === code);
 }
 
+export function findCountryJsonByIso2(code: string): TCountryJson | undefined {
+  return countriesJson.find(item => item.iso2 === code);
+}
+
 export function findCountryJsonByName(name: string): TCountryJson | undefined {
   return countriesJson.find(item => item.name.toLowerCase() === name.toLowerCase());
 }
